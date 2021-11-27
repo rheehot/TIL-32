@@ -1,16 +1,18 @@
 package domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.time.Duration;
 import java.util.List;
 
-public class Movie {
+@Getter
+@AllArgsConstructor
+public abstract class Movie {
     private String title;
     private Duration runningTime;
     private Money fee;
     private List<DiscountCondition> discountConditions;
-    private MovieType movieType;
-    private Money discountAmount;
-    private double discountPercent;
 
 
     public Money calculateMovieFee(Screening screening) {
@@ -20,32 +22,10 @@ public class Movie {
         return fee;
     }
 
-    private Money calculateDiscountAmount() {
-        switch (movieType) {
-            case NONE_DISCOUNT:
-                return calculateNoneDiscountAmount();
-            case AMOUNT_DISCOUNT:
-                return calculateAmountDiscountAmount();
-            case PERCENT_DISCOUNT:
-                return calculatePercentDiscountAmount();
-        }
-        throw  new IllegalStateException();
-    }
-
-    private Money calculateAmountDiscountAmount() {
-        return discountAmount;
-    }
-
-    private Money calculatePercentDiscountAmount() {
-        return fee.times(discountPercent);
-    }
-
-    private Money calculateNoneDiscountAmount() {
-        return Money.ZERO;
-    }
-
     private boolean isDiscountable(Screening screening) {
         return discountConditions.stream()
                 .anyMatch(discountCondition -> discountCondition.isSatisfiedBy(screening));
     }
+
+    abstract protected Money calculateDiscountAmount();
 }
